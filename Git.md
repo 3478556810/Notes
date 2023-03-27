@@ -24,7 +24,13 @@ git diff <name> ：查看文件修改的部分
 
 git log：查看之前的提交历史
 
-git log pretty：查看精修的提交历史
+git log pretty：查看精修的提交历史，如 
+
+```bash
+git log --pretty=oneline
+```
+
+，将提交日志以一行展示
 
 git log --graph：以图形化方式查看提交历史
 
