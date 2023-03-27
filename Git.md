@@ -88,3 +88,4 @@ git checkout -b <branch>：创建并切换到新分支
 
 4.合并分支
 
+git merge <branch>：将给定分支合并到当前分支
