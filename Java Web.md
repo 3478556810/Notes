@@ -695,7 +695,7 @@ JavaScript中分为：原始类型和引用类型。
     - onmouseover：鼠标被移到某元素之上
     - onmouseout：鼠标从某元素移开
 
-## 3.Vue、Element-UI
+## 3.Web 前端
 
 ## 3.1 Vue
 
@@ -919,11 +919,91 @@ JavaScript中分为：原始类型和引用类型。
   - beforeDestroy：销毁前
   - destroyed：销毁后
 
-  ![image-20230329231926687](C:\Users\undercurrent\AppData\Roaming\Typora\typora-user-images\image-20230329231926687.png)
+  ![image-20230329231926687](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230329231926687.png?x-os)
 
 
 
+## 3.2 Ajax
 
+### 3.2.1 概念：
 
+Asynchoronous JavaScript And Xml,异步的JavaScript和XML。
 
+### 3.2.2 作用：
 
+- 数据交换：通过Ajax可以给服务器发送请求，并获取服务器响应的数据
+- 异步交互：可以在不重新加载整个页面的情况下，与服务器交换数据并更新部分网页的技术，如：搜索联想、参数检验等
+
+### 3.2.3 原生Ajax
+
+- 准备数据地址
+- 创建XMLHTTPRequest对象：用于和服务器交换数据
+- 向服务器发送请求
+- 获取服务器响应数据
+
+```javascript
+        //1. 创建XMLHttpRequest 
+        var xmlHttpRequest  = new XMLHttpRequest();
+        
+        //2. 发送异步请求
+        xmlHttpRequest.open('GET','http://yapi.smart-xwork.cn/mock/169327/emp/list');
+        xmlHttpRequest.send();//发送请求
+        
+        //3. 获取服务响应数据
+        xmlHttpRequest.onreadystatechange = function(){
+            if(xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 200){
+                document.getElementById('div1').innerHTML = xmlHttpRequest.responseText;
+            }
+        }
+```
+
+### 3.2.4 Axios
+
+- 介绍：对原生Ajax进行了封装，简化书写，快速开发
+
+- 使用方式：
+
+  - 引入Axios的js文件
+
+  ```html
+  <head>
+      <script src="js/axios-0.18.0.js"></script>
+  </head>
+  ```
+
+  
+
+  - 使用Axios发送请求，并获取响应结果
+
+  ```js
+   // 通过axios发送异步请求-post
+          axios({
+              method: "post",
+              url: "http://yapi.smart-xwork.cn/mock/169327/emp/deleteById",
+              data: "id=1"
+          }).then(result => {
+              console.log(result.data);
+          })
+  ```
+
+- 请求方式别名（ []中的参数为可选）
+
+  - axios.get(url,[config]) 
+
+  ```js
+    axios.post("http://yapi.smart-xwork.cn/mock/169327/emp/deleteById","id=1").then(result => {
+              console.log(result.data);
+          })
+  ```
+
+  
+
+  - axios.delete(url,[config])
+  - axios.post(url,[data],[config])
+  - axios.put(url,[data],[config])
+
+## 3.3 前后端分离开发
+
+### 3.3.1介绍
+
+- 前后端混合开发
