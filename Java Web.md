@@ -1002,8 +1002,232 @@ Asynchoronous JavaScript And Xml,异步的JavaScript和XML。
   - axios.post(url,[data],[config])
   - axios.put(url,[data],[config])
 
-## 3.3 前后端分离开发
+## 3.3 前端开发
 
-### 3.3.1介绍
+### 3.3.1  前后端分离开发
 
-- 前后端混合开发
+- 开发流程
+
+  ![image-20230403103825383](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230403103825383.png?x-os)
+
+- YApi
+  - 介绍：YApi是高效、易用、功能强大的api管理平台，旨在为开发、产品、测试人员提供更优雅的接口测试服务。
+  - 提供Api接口管理和Mock服务
+
+### 3.3.2 前端工程化
+
+![image-20230403105514210](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230403105514210.png?x-os)
+
+- 环境准备
+
+  - 介绍：Vue-cli是Vue官方提供的一个脚手架，用于快速生成一个Vue的项目模板。
+  - Vue-cli提供了如下功能：
+    - 统一的目录结构
+    - 本地调试
+    - 热部署
+    - 单元测试
+    - 集成打包上线
+  - 依赖环境：NodeJS
+
+- 安装vue-cli
+
+  ```bash
+  npm install -g @vue/cli
+  ```
+
+- Vue项目-创建
+
+  - 命令行
+
+    ```bash
+    vue create vue_demo
+    ```
+
+  - 图形化界面
+
+    ```bash
+    vue ui
+    ```
+
+- Vue项目-目录结构
+
+  - 基于Vue脚手架创建出来的工程，有标准的目录结构，如下：
+
+    ![image-20230404093428306](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230404093428306.png?x-os)
+
+- Vue项目-配置端口
+
+  ![image-20230404093753479](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230404093753479.png?x-os)
+
+- Vue项目-开发流程
+
+  - 挂载App.vue至首页
+
+  ![image-20230404094326479](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230404094326479.png?x-os)
+
+  - 组件文件的组成部分
+
+    ![image-20230404094643908](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230404094643908.png?x-os)
+
+## 3.4 ElementUI
+
+### 3.4.1 概念
+
+- Element：是饿了么团队研发的，一套为开发者、设计师和产品经理准备的基于Vue 2.0的桌面端组件库。
+- 组件：组成网页的部件，例如超链接、按钮、图片、表格、表单、分页条等等。
+
+### 3.4.2 快速入门
+
+- 安装ElementUI组件库（在当前工程的目录下），在命令行执行指令：
+
+  ```bash
+  npm install element-ui@2.15.3
+  ```
+
+- 引入ElementUI组件库，在main.js添加以下内容：
+
+  ```js
+  import ElementUI from 'element-ui';
+  import 'element-ui/lib/theme-chalk/index.css'
+  
+  Vue.use(ElementUI);
+  ```
+
+- 访问官网，复制组件代码，进行调整
+
+### 3.4.3 常用组件
+
+-  Table 表格：用于展示多条结构类似的数据，可对数据进行排序、筛选、对比或其他自定义操作
+
+  ![image-20230404102217227](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230404102217227.png?x-os)
+
+- Pagination分页：当数据量过多时，使用分页分解数据
+
+  ```vue
+  <el-pagination
+    background
+    layout="prev, pager, next"
+    :total="1000">
+  </el-pagination>
+  ```
+
+  - 使用size-change`和`current-change事件来处理页码大小和当前页变动时候触发的事件
+
+    ```vue
+    <template>
+      <div class="block">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="400">
+        </el-pagination>
+      </div>
+    </template>
+    <script>
+      export default {
+        methods: {
+          handleSizeChange(val) {
+            console.log(`每页 ${val} 条`);
+          },
+          handleCurrentChange(val) {
+            console.log(`当前页: ${val}`);
+          }
+        },
+      }
+    </script>
+    
+    ```
+
+    ![image-20230404103257900](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230404103257900.png?x-os)
+
+- Dialog对话框：在保留当前页面状态的情况下，告知用户并承载相关操作
+
+  ![image-20230404104318183](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230404104318183.png?x-os)
+
+- Form表单：由输入框、选择器、单选框、多选框等控件组成，用以收集、检验、提交数据
+
+![image-20230404104800743](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230404104800743.png?x-os)
+
+
+
+## 3.5 Vue路由
+
+### 3.5.1 概念
+
+- 介绍：Vue Router是Vue的官方路由。
+- 组成
+  - VueRouter：路由器类，根据路由请求在路由视图中动态渲染选中的组件
+  - <router-link>：请求连接组件，浏览器会解析成<a>
+  - <router-view>：动态视图组件，用于渲染展示与路由路径对应的组件
+
+![image-20230404112111171](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230404112111171.png?x-os)
+
+### 3.5.2 快速入门
+
+- 安装
+
+  ```bash
+  npm install vue-router@3.5.1
+  ```
+
+- 定义路由，在src/router/index.js，定义emp、dept两个路由
+
+  ```js
+  import Vue from 'vue'
+  import VueRouter from 'vue-router'
+  
+  
+  Vue.use(VueRouter)
+  
+  const routes = [
+    {
+      path: '/emp',
+      name: 'emp',
+      component: () => import( '../views/tlias/EmpView.vue')
+    },
+    {
+      path: '/about',
+      name: 'about',
+      component: () => import( '../views/tlias/DeptView.vue')
+    },
+    {
+      path:'/',
+      redirect: '/dept'
+    }
+  ]
+  
+  const router = new VueRouter({
+    routes
+  })
+  
+  export default router
+  
+  ```
+
+  - 在组件中引入
+
+    ```vue
+     <router-link to="/emp">
+     员工管理
+     </router-link>
+    ```
+
+  - 在App.vue配置router-view用来展示路由页面
+
+    ```vue
+    <template>
+      <div>
+    <router-view></router-view>
+      </div>
+    </template>
+    ```
+
+## 3.6  打包部署
+
+- Nginx
+  - 介绍：Nginx是一种轻量级的Web服务器/反向代理服务器及电子邮件（IMAP/POP3）代理服务器。其特点是占用内存少，并发强，在各大型互联网公司都有非常广泛的使用。
+  - 配置文件：Nginx.conf
+
+
+
