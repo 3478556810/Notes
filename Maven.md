@@ -206,7 +206,7 @@ Maven对项目构建的生命周期划分为3套（相互独立）：
 2. 在DOS命令行中，通过maven命令执行，如
 
    ```bash
-   mvn 
+   mvn clean
    ```
 
    
