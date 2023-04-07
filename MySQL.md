@@ -56,7 +56,7 @@ SQL（**S**tructured **Q**uery **L**anguage，简称SQL）：结构化查询语�
 
 
 
-## 1. MySQL概述
+# 1. MySQL概述
 
 ![image-20220610191829748](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20220610191829748.png?x-os) 
 
@@ -204,7 +204,7 @@ SQL语句根据其功能被分为四大类：DDL、DML、DQL、DCL
 
 
 
-## 2. 数据库设计-DDL
+# 2. 数据库设计-DDL
 
 下面我们就正式的进入到SQL语句的学习，在学习之前先给大家介绍一下我们要开发一个项目，整个开发流程是什么样的，以及在流程当中哪些环节会涉及到数据库。
 
@@ -622,7 +622,7 @@ drop  table [ if exists ]  表名;
 
 > if exists ：只有表名存在时才会删除该表，表名不存在，则不执行删除操作(如果不加该参数项，删除一张不存在的表，执行将会报错)。
 
-## 3. 数据库操作-DML
+# 3. 数据库操作-DML
 
 DML英文全称是Data Manipulation Language(数据操作语言)，用来对数据库中表的数据记录进行增、删、改操作。
 
@@ -1664,3 +1664,368 @@ on emp.dept_id=dept.id;
 ```
 
 ![image-20230406223910130](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230406223910130.png?x-os)
+
+### 4.3.5 案例
+
+基于之前设计的多表案例的表结构，我们来完成今天的多表查询案例需求。
+
+**准备环境**
+
+将资料中准备好的多表查询的数据准备的SQL脚本导入数据库中。
+
+![image-20221208143318921](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20221208143318921.png?x-os) 
+
+- 分类表：category
+- 菜品表：dish
+- 套餐表：setmeal
+- 套餐菜品关系表：setmeal_dish
+
+![image-20221208143312292](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20221208143312292.png?x-os) 
+
+
+
+**需求实现**
+
+-- 1. 查询价格低于 10元 的菜品的名称 、价格 及其 菜品的分类名称 .
+
+```mysql
+select dish.name,dish.price,category.name     
+    from dish , category                    
+where dish.category_id = category.id and price <10;
+```
+
+![image-20230407092807379](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230407092807379.png?x-os)
+
+-- 2. 查询所有价格在 10元(含)到50元(含)之间 且 状态为'起售'的菜品名称、价格 及其 菜品的分类名称 (即使菜品没有分类 , 也需要将菜品查询出来).
+
+```mysql
+select d.name,d.price,c.name
+from dish d left join category c on d.category_id = c.id
+where d.price between 10 and 50
+  and d.status = 1;
+```
+
+![image-20230407093949376](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230407093949376.png?x-os)
+
+-- 3. 查询每个分类下最贵的菜品, 展示出分类的名称、最贵的菜品的价格 .
+
+```mysql
+select  c.name,max(price)
+    from dish d,category c
+where d.category_id=c.id
+    group by c.name
+```
+
+![image-20230407094201936](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230407094201936.png?x-os)
+
+-- 4. 查询各个分类下 状态为 '起售' , 并且 该分类下菜品总数量大于等于3 的 分类名称 .
+
+```mysql
+select c.name
+    from dish d,category c
+where d.category_id = c.id
+and c.status=1
+group by c.name
+having count(*)>=3
+```
+
+![image-20230407095253019](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230407095253019.png?x-os)
+
+-- 5. 查询出套餐中包含了哪些菜品 （展示出套餐名称、价格, 包含的菜品名称、价格、份数）.
+
+```mysql
+select s.name,s.price,d.name,d.price,sd.copies
+    from setmeal s,dish d,setmeal_dish sd
+where s.id = sd.setmeal_id and d.id = sd.dish_id;
+```
+
+![image-20230407095312081](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230407095312081.png?x-os)
+
+-- 6. 查询出低于菜品平均价格的菜品信息 (展示出菜品名称、菜品价格).
+
+```mysql
+select d.name,d.price
+    from dish d
+where d.price <
+(select avg(price)
+from dish)
+```
+
+![image-20230407095731973](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230407095731973.png?x-os)
+
+## 4.4 事务
+
+场景：学工部整个部门解散了，该部门及部门下的员工都需要删除了。
+
+- 操作：
+
+  ```sql
+  -- 删除学工部
+  delete from dept where id = 1;  -- 删除成功
+  
+  -- 删除学工部的员工
+  delete from emp where dept_id = 1; -- 删除失败（操作过程中出现错误：造成删除没有成功）
+  ```
+
+- 问题：如果删除部门成功了，而删除该部门的员工时失败了，此时就造成了数据的不一致。
+
+​	要解决上述的问题，就需要通过数据库中的事务来解决。
+
+
+
+### 4.4.1 介绍
+
+在实际的业务开发中，有些业务操作要多次访问数据库。一个业务要发送多条SQL语句给数据库执行。需要将多次访问数据库的操作视为一个整体来执行，要么所有的SQL语句全部执行成功。如果其中有一条SQL语句失败，就进行事务的回滚，所有的SQL语句全部执行失败。
+
+简而言之：事务是一组操作的集合，它是一个不可分割的工作单位。事务会把所有的操作作为一个整体一起向系统提交或撤销操作请求，即这些操作要么同时成功，要么同时失败。
+
+事务作用：保证在一个事务中多次操作数据库表中数据时，要么全都成功,要么全都失败。
+
+
+
+### 4.4.2 操作
+
+MYSQL中有两种方式进行事务的操作：
+
+1. 自动提交事务：即执行一条sql语句提交一次事务。（默认MySQL的事务是自动提交）
+2. 手动提交事务：先开启，再提交 
+
+事务操作有关的SQL语句：
+
+| SQL语句                        | 描述             |
+| ------------------------------ | ---------------- |
+| start transaction;  /  begin ; | 开启手动控制事务 |
+| commit;                        | 提交事务         |
+| rollback;                      | 回滚事务         |
+
+> 手动提交事务使用步骤：
+>
+> - 第1种情况：开启事务  =>  执行SQL语句   =>  成功  =>  提交事务
+> - 第2种情况：开启事务  =>  执行SQL语句   =>  失败  =>  回滚事务
+
+
+
+使用事务控制删除部门和删除该部门下的员工的操作：
+
+```sql
+-- 开启事务
+start transaction ;
+
+-- 删除学工部
+delete from tb_dept where id = 1;
+
+-- 删除学工部的员工
+delete from tb_emp where dept_id = 1;
+```
+
+- 上述的这组SQL语句，如果如果执行成功，则提交事务
+
+```sql
+-- 提交事务 (成功时执行)
+commit ;
+```
+
+- 上述的这组SQL语句，如果如果执行失败，则回滚事务
+
+```sql
+-- 回滚事务 (出错时执行)
+rollback ;
+```
+
+
+
+
+
+### 4.4.3 四大特性
+
+面试题：事务有哪些特性？
+
+- 原子性（Atomicity）：事务是不可分割的最小单元，要么全部成功，要么全部失败。
+- 一致性（Consistency）：事务完成时，必须使所有的数据都保持一致状态。
+- 隔离性（Isolation）：数据库系统提供的隔离机制，保证事务在不受外部并发操作影响的独立环境下运行。
+- 持久性（Durability）：事务一旦提交或回滚，它对数据库中的数据的改变就是永久的。
+
+> 事务的四大特性简称为：ACID
+
+
+
+- **原子性（Atomicity）** ：原子性是指事务包装的一组sql是一个不可分割的工作单元，事务中的操作要么全部成功，要么全部失败。
+
+- **一致性（Consistency）**：一个事务完成之后数据都必须处于一致性状态。
+
+​		如果事务成功的完成，那么数据库的所有变化将生效。
+
+​		如果事务执行出现错误，那么数据库的所有变化将会被回滚(撤销)，返回到原始状态。
+
+- **隔离性（Isolation）**：多个用户并发的访问数据库时，一个用户的事务不能被其他用户的事务干扰，多个并发的事务之间要相互隔离。
+
+​		一个事务的成功或者失败对于其他的事务是没有影响。
+
+- **持久性（Durability）**：一个事务一旦被提交或回滚，它对数据库的改变将是永久性的，哪怕数据库发生异常，重启之后数据亦然存在。
+
+
+
+## 4.5 索引
+
+### 4.5.1 介绍 
+
+索引(index)：是帮助数据库高效获取数据的数据结构 。
+
+- 简单来讲，就是使用索引可以提高查询的效率。
+
+
+
+测试没有使用索引的查询：
+
+![image-20221209115617429](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20221209115617429.png?x-os)
+
+添加索引后查询：
+
+~~~mysql
+-- 添加索引
+create index idx_sku_sn on tb_sku (sn);  #在添加索引时，也需要消耗时间
+
+-- 查询数据（使用了索引）
+select * from tb_sku where sn = '100000003145008';
+~~~
+
+![image-20221209120107543](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20221209120107543.png?x-os)
+
+
+
+优点：
+
+1. 提高数据查询的效率，降低数据库的IO成本。
+2. 通过索引列对数据进行排序，降低数据排序的成本，降低CPU消耗。
+
+缺点：
+
+1. 索引会占用存储空间。
+2. 索引大大提高了查询效率，同时却也降低了insert、update、delete的效率。
+
+
+
+
+
+### 4.5.2 结构
+
+MySQL数据库支持的索引结构有很多，如：Hash索引、B+Tree索引、Full-Text索引等。
+
+我们平常所说的索引，如果没有特别指明，都是指默认的 B+Tree 结构组织的索引。
+
+在没有了解B+Tree结构前，我们先回顾下之前所学习的树结构：
+
+> 二叉查找树：左边的子节点比父节点小，右边的子节点比父节点大
+
+![image-20221208174135229](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20221208174135229.png?x-os) 
+
+> 当我们向二叉查找树保存数据时，是按照从大到小(或从小到大)的顺序保存的，此时就会形成一个单向链表，搜索性能会打折扣。
+
+![image-20221208174859866](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20221208174859866.png?x-os) 
+
+> 可以选择平衡二叉树或者是红黑树来解决上述问题。（红黑树也是一棵平衡的二叉树）
+
+![image-20221209100647867](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20221209100647867.png?x-os)
+
+> 但是在Mysql数据库中并没有使用二叉搜索数或二叉平衡数或红黑树来作为索引的结构。
+
+思考：采用二叉搜索树或者是红黑树来作为索引的结构有什么问题？
+
+<details>
+    <summary>答案</summary>
+    最大的问题就是在数据量大的情况下，树的层级比较深，会影响检索速度。因为不管是二叉搜索数还是红黑数，一个节点下面只能有两个子节点。此时在数据量大的情况下，就会造成数的高度比较高，树的高度一旦高了，检索速度就会降低。
+</details>
+
+
+
+> 说明：如果数据结构是红黑树，那么查询1000万条数据，根据计算树的高度大概是23左右，这样确实比之前的方式快了很多，但是如果高并发访问，那么一个用户有可能需要23次磁盘IO，那么100万用户，那么会造成效率极其低下。所以为了减少红黑树的高度，那么就得增加树的宽度，就是不再像红黑树一样每个节点只能保存一个数据，可以引入另外一种数据结构，一个节点可以保存多个数据，这样宽度就会增加从而降低树的高度。这种数据结构例如BTree就满足。
+
+下面我们来看看B+Tree(多路平衡搜索树)结构中如何避免这个问题：
+
+![image-20221208181315728](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20221208181315728.png?x-os)
+
+B+Tree结构：
+
+- 每一个节点，可以存储多个key（有n个key，就有n个指针）
+- 节点分为：叶子节点、非叶子节点
+  - 叶子节点，就是最后一层子节点，所有的数据都存储在叶子节点上
+  - 非叶子节点，不是树结构最下面的节点，用于索引数据，存储的的是：key+指针
+- 为了提高范围查询效率，叶子节点形成了一个双向链表，便于数据的排序及区间范围查询
+
+
+
+> **拓展：**
+>
+> 非叶子节点都是由key+指针域组成的，一个key占8字节，一个指针占6字节，而一个节点总共容量是16KB，那么可以计算出一个节点可以存储的元素个数：16*1024字节 / (8+6)=1170个元素。
+>
+> - 查看mysql索引节点大小：show global status like 'innodb_page_size';    -- 节点大小：16384
+>
+> 当根节点中可以存储1170个元素，那么根据每个元素的地址值又会找到下面的子节点，每个子节点也会存储1170个元素，那么第二层即第二次IO的时候就会找到数据大概是：1170*1170=135W。也就是说B+Tree数据结构中只需要经历两次磁盘IO就可以找到135W条数据。
+>
+> 对于第二层每个元素有指针，那么会找到第三层，第三层由key+数据组成，假设key+数据总大小是1KB，而每个节点一共能存储16KB，所以一个第三层一个节点大概可以存储16个元素(即16条记录)。那么结合第二层每个元素通过指针域找到第三层的节点，第二层一共是135W个元素，那么第三层总元素大小就是：135W*16结果就是2000W+的元素个数。
+>
+> 结合上述分析B+Tree有如下优点：
+>
+> - 千万条数据，B+Tree可以控制在小于等于3的高度
+> - 所有的数据都存储在叶子节点上，并且底层已经实现了按照索引进行排序，还可以支持范围查询，叶子节点是一个双向链表，支持从小到大或者从大到小查找
+
+
+
+
+
+### 4.5.3 语法
+
+**创建索引**
+
+~~~mysql
+create  [ unique ]  index 索引名 on  表名 (字段名,... ) ;
+~~~
+
+案例：为tb_emp表的name字段建立一个索引
+
+~~~mysql
+create index idx_emp_name on tb_emp(name);
+~~~
+
+> 在创建表时，如果添加了主键和唯一约束，就会默认创建：主键索引、唯一约束
+>
+> 
+
+
+
+**查看索引**
+
+~~~mysql
+show  index  from  表名;
+~~~
+
+案例：查询 tb_emp 表的索引信息
+
+~~~mysql
+show  index  from  tb_emp;
+~~~
+
+![image-20230407103142096](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230407103142096.png?x-os)
+
+**删除索引**
+
+~~~mysql
+drop  index  索引名  on  表名;
+~~~
+
+案例：删除 tb_emp 表中name字段的索引
+
+~~~mysql
+drop index idx_emp_name on tb_emp;
+~~~
+
+
+
+> 注意事项：
+>
+> - 主键字段，在建表时，会自动创建主键索引
+>
+> - 添加唯一约束时，数据库实际上会添加唯一索引
+
+
+
