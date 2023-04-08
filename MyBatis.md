@@ -1126,9 +1126,29 @@ Mybatis的开发有两种方式：
 >
 > - resultType属性，指的是查询返回的单条记录所封装的类型。
 
+> 新手通常因为偷懒而不分级建包，导致无法映射绑定（编译后，mapper和映射xml文件不在同一文件夹下）
+>
+> 如com.example.mapper,需要依次分级建立com,example,mapper包，才能确保映射成功绑定（编译后，mapper和映射xml文件在同一文件夹下）
+>
+> ![image-20230408134654053](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230408134654053.png?x-os)
 
 
 
+注意：还有一种规范可以避免建包的麻烦（推荐）：
+
+在application.yml 定义
+
+```yml
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath:mapper/*.xml
+```
+
+指明xml文件放在mapper包下，即可只在resources包下建立包及文件形成关联（无需同包同名）
+
+![image-20230408133645651](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230408133645651.png?x-os)
 
 ## 6.2 XML配置文件实现
 
@@ -1163,8 +1183,6 @@ Mybatis的开发有两种方式：
 
 </mapper>
 ~~~
-
-
 
 配置：XML映射文件中sql语句的id与Mapper接口中的方法名一致，并保持返回类型一致
 
