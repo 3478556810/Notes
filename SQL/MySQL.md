@@ -62,7 +62,7 @@ SQL（**S**tructured **Q**uery **L**anguage，简称SQL）：结构化查询语�
 
 官网：https://dev.mysql.com/
 
-### 1.1 安装
+### 1.1 Windows安装
 
 #### 1.1.1 版本
 
@@ -124,7 +124,31 @@ mysql -u用户名 -p密码 [-h数据库服务器的IP地址 -P端口号]
 
   ![image-20230406100359471](https://typora-picsbed.oss-cn-shanghai.aliyuncs.com/typora/image-20230406100359471.png?x-os)
 
-### 1.2 数据模型
+### 1.2 Linux操作
+
+#### 1.2.1 连接
+
+```bash
+mysql -uroot -pyourPassword
+```
+
+#### 1.2.2 修改密码
+
+```bash
+use mysql
+update user set password=password("yourPassword") where user="root";
+```
+
+#### 1.2.3 修改权限
+
+```bash
+update user set Host='%' where User='root' and host='localhost';
+FLUSH PRIVILEGES;
+```
+
+该行指令使root用户可以外网访问数据库
+
+### 1.3 数据模型
 
 介绍完了Mysql数据库的安装配置之后，接下来我们再来聊一聊Mysql当中的数据模型。学完了这一小节之后，我们就能够知道在Mysql数据库当中到底是如何来存储和管理数据的。
 
@@ -168,13 +192,13 @@ MySQL是关系型数据库，是基于二维表进行数据存储的，具体的
 
 
 
-### 1.3 SQL简介
+### 1.4 SQL简介
 
 SQL：结构化查询语言。一门操作关系型数据库的编程语言，定义操作所有关系型数据库的统一标准。
 
 在学习具体的SQL语句之前，先来了解一下SQL语言的语法。
 
-#### 1.3.1 SQL通用语法
+#### 1.4.1 SQL通用语法
 
 1、SQL语句可以单行或多行书写，以分号结尾。
 
@@ -191,7 +215,7 @@ SQL：结构化查询语言。一门操作关系型数据库的编程语言，�
 
 
 
-#### 1.3.2 分类
+#### 1.4.2 分类
 
 SQL语句根据其功能被分为四大类：DDL、DML、DQL、DCL 
 
